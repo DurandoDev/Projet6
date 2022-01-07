@@ -20,4 +20,5 @@ public class LoginController {
 	public String getAdmin() {
 		return "Welcome, Admin";
 	}
+
 }
