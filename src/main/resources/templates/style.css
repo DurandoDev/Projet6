@@ -1,0 +1,11 @@
+/* GENERAL */
+
+body{
+    font-family: 'lato', sans-serif;
+}
+
+/* FORM */
+
+#form{
+    display: block;
+}
