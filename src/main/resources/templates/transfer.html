@@ -65,27 +65,51 @@
         </form>
     </section>
     <section id="tableExchange">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">Connections</th>
-                <th scope="col">Description</th>
-                <th scope="col">Amount</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>Clara</td>
-                <td>Restaurant bill</td>
-                <td>45€</td>
-            </tr>
-            <tr>
-                <td>John</td>
-                <td>Trip money</td>
-                <td>20€</td>
-            </tr>
-            </tbody>
-        </table>
+<!--        <table class="table">-->
+<!--            <thead>-->
+<!--            <tr>-->
+<!--                <th scope="col">Connections</th>-->
+<!--                <th scope="col">Description</th>-->
+<!--                <th scope="col">Amount</th>-->
+<!--            </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--            <tr>-->
+<!--                <td>Clara</td>-->
+<!--                <td>Restaurant bill</td>-->
+<!--                <td>45€</td>-->
+<!--            </tr>-->
+<!--            <tr>-->
+<!--                <td>John</td>-->
+<!--                <td>Trip money</td>-->
+<!--                <td>20€</td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+        <div th:switch="${transfers}">
+            <h2 th:case="null">No transactions yet!</h2>
+            <div th:case="*">
+                <h2>Transactions</h2>
+                <table>
+                    <thead>
+                    <tr>
+                        <th scope="col">Connections</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="transfer : ${transfers}">
+                        <td th:text="${transfer.receiver.firstName}"></td>
+                        <td th:text="${transfer.description}"></td>
+                        <td th:text="${transfer.amount}"></td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-primary"><a href="/signup" style="color:white; text-decoration: none">Add a new user</a></button>
+        </div>
     </section>
     </body>
 </html>

@@ -56,6 +56,7 @@ public class UserController {
 	@GetMapping("/index")
 	public String showUserList(Transfer transfer, Model model) {
 		model.addAttribute("users", userRepo.findAll());
+		model.addAttribute("transfers", transferRepo.findAll());
 		return "transfer";
 	}
 

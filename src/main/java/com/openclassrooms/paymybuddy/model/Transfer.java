@@ -15,6 +15,8 @@ public class Transfer {
 
 	private Double amount;
 
+	private String description;
+
 	@ManyToOne
 	User sender;
 
