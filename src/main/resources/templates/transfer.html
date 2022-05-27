@@ -18,7 +18,7 @@
                         <li class="nav-item"><a class="nav-link" href="#">Transfer</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Log off</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/logout">Log off</a></li>
                     </div>
                 </ul>
             </div>
@@ -53,7 +53,12 @@
                 </div>
                 <div class="col">
                     <div class="input-group">
-                        <input type="text" th:field="*{amount}" class="form-control" aria-label="amount">
+                        <input type="text" th:field="*{description}" class="form-control" aria-label="description" placeholder="description">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group">
+                        <input type="text" th:field="*{amount}" class="form-control" aria-label="amount" placeholder="0.00">
                         <span class="input-group-text">$</span>
                     </div>
                 </div>
@@ -65,32 +70,11 @@
         </form>
     </section>
     <section id="tableExchange">
-<!--        <table class="table">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th scope="col">Connections</th>-->
-<!--                <th scope="col">Description</th>-->
-<!--                <th scope="col">Amount</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr>-->
-<!--                <td>Clara</td>-->
-<!--                <td>Restaurant bill</td>-->
-<!--                <td>45€</td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <td>John</td>-->
-<!--                <td>Trip money</td>-->
-<!--                <td>20€</td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
         <div th:switch="${transfers}">
             <h2 th:case="null">No transactions yet!</h2>
             <div th:case="*">
                 <h2>Transactions</h2>
-                <table>
+                <table  class="container table table-striped table-hover">
                     <thead>
                     <tr>
                         <th scope="col">Connections</th>

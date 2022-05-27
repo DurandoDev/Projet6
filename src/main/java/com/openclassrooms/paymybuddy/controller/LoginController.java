@@ -9,11 +9,11 @@ import javax.annotation.security.RolesAllowed;
 @RestController
 public class LoginController {
 
-	@RequestMapping("/*")
-	@RolesAllowed("USER")
-	public String getUser() {
-		return "Welcome, User";
-	}
+//	@RequestMapping("/*")
+//	@RolesAllowed("USER")
+//	public String getUser() {
+//		return "redirect: /index";
+//	}
 
 	@RequestMapping("/admin")
 	@RolesAllowed("ADMIN")
