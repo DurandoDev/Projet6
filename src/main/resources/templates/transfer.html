@@ -37,7 +37,7 @@
                     <h4>Send Money</h4>
                 </div>
                 <div class="col-sm-6">
-                    <button type="button" class="btn btn-primary">Add Connection</button>
+                    <button type="button" class="btn btn-primary"><a href="/user/addconnection" style="color:white; text-decoration: none">Add Connection</a></button>
                 </div>
             </div>
         </section>
@@ -48,7 +48,7 @@
                 <div class="col">
                     <select class="form-select" th:field="*{receiver}" aria-label="selectConnection">
                         <option value="0">select option</option>
-                        <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.firstName}"></option>
+                        <option th:each="connection : ${connections}" th:value="${connection.user.id}" th:text="${connection.user.firstName}"></option>
                     </select>
                 </div>
                 <div class="col">
@@ -74,8 +74,8 @@
             <h2 th:case="null">No transactions yet!</h2>
             <div th:case="*">
                 <h2>Transactions</h2>
-                <table  class="container table table-striped table-hover">
-                    <thead>
+                <table  class="container table table-striped table-hover ">
+                    <thead class="table-dark">
                     <tr>
                         <th scope="col">Connections</th>
                         <th scope="col">Description</th>

@@ -1,8 +1,10 @@
 package com.openclassrooms.paymybuddy.controller;
 
+import com.openclassrooms.paymybuddy.model.Connections;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.Transfer;
 import com.openclassrooms.paymybuddy.model.User;
+import com.openclassrooms.paymybuddy.repository.ConnectionsRepo;
 import com.openclassrooms.paymybuddy.repository.RoleRepo;
 import com.openclassrooms.paymybuddy.repository.TransferRepo;
 import com.openclassrooms.paymybuddy.repository.UserRepo;
@@ -16,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.swing.table.TableRowSorter;
 import javax.validation.Valid;
@@ -34,6 +37,9 @@ public class UserController {
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
+
+	@Autowired
+	ConnectionsRepo connectionsRepo;
 
 	@GetMapping("/signup")
 	public String showSignUpForm(User user) {
@@ -55,7 +61,9 @@ public class UserController {
 
 	@GetMapping("/index")
 	public String showUserList(Transfer transfer, Model model) {
-		model.addAttribute("users", userRepo.findAll());
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User connectedUser = userRepo.findByEmail(userDetails.getUsername()).get();
+		model.addAttribute("connections", connectionsRepo.findUserConnections(connectedUser.getId()));
 		model.addAttribute("transfers", transferRepo.findAll());
 		return "transfer";
 	}
@@ -91,6 +99,28 @@ public class UserController {
 		transfer.setSender(sender);
 		transferRepo.save(transfer);
 		return "redirect:/index?success";
+	}
+
+	@GetMapping("/user/addconnection")
+	public String showAddConnection() {
+		return "/addconnection";
+	}
+
+	@PostMapping("/user/addconnection")
+	public String addConnection(@RequestParam String email, Model model){
+
+		User user = userRepo.findByEmail(email).get();
+
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		User owner = userRepo.findByEmail(userDetails.getUsername()).get();
+
+		Connections c = new Connections(user, owner);
+
+		connectionsRepo.save(c);
+
+		return "redirect:/index?success";
+
 	}
 
 
