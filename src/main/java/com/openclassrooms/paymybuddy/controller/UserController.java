@@ -9,6 +9,9 @@ import com.openclassrooms.paymybuddy.repository.RoleRepo;
 import com.openclassrooms.paymybuddy.repository.TransferRepo;
 import com.openclassrooms.paymybuddy.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,8 +23,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.swing.table.TableRowSorter;
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class UserController {
@@ -121,6 +127,29 @@ public class UserController {
 
 		return "redirect:/index?success";
 
+	}
+
+	@GetMapping(value = "/listTransfers")
+	public String listTransfers(
+			Model model,
+			@RequestParam("page") Optional<Integer> page,
+			@RequestParam("size") Optional<Integer> size) {
+		int currentPage = page.orElse(1);
+		int pageSize = size.orElse(5);
+
+		Pageable pageable = PageRequest.of(currentPage, pageSize);
+
+		Page<Transfer> transferPage = transferRepo.findAll(pageable);
+
+
+		List < Transfer > listTransferts = transferPage.getContent();
+
+		model.addAttribute("currentPage", currentPage);
+		model.addAttribute("totalPages", transferPage.getTotalPages());
+		model.addAttribute("totalItems", transferPage.getTotalElements());
+		model.addAttribute("transfers", listTransferts);
+
+		return "transfer.html";
 	}
 
 
