@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
 public class UserController {
@@ -62,15 +60,31 @@ public class UserController {
 		Role role = roleRepo.findByName("USER").get();
 		user.setRole(role);
 		userRepo.save(user);
-		return "redirect:/index?success";
+		return "redirect:/transfer?success";
 	}
 
-	@GetMapping("/index")
-	public String showUserList(Transfer transfer, Model model) {
+	@GetMapping("/transfer")
+	public String showUserList(Transfer transfer, Model model,
+	                           @RequestParam("page") Optional<Integer> page,
+	                           @RequestParam("size") Optional<Integer> size) {
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User connectedUser = userRepo.findByEmail(userDetails.getUsername()).get();
 		model.addAttribute("connections", connectionsRepo.findUserConnections(connectedUser.getId()));
-		model.addAttribute("transfers", transferRepo.findAll());
+
+
+		int currentPage = page.orElse(1);
+		int pageSize = size.orElse(5);
+
+		Pageable pageable = PageRequest.of(currentPage-1, pageSize);
+
+		Page<Transfer> transferPage = transferRepo.findBySender(connectedUser,pageable);
+
+		List < Transfer > listTransferts = transferPage.getContent();
+
+		model.addAttribute("currentPage", currentPage);
+		model.addAttribute("totalPages", transferPage.getTotalPages());
+		model.addAttribute("totalItems", transferPage.getTotalElements());
+		model.addAttribute("transfers", listTransferts);
 		return "transfer";
 	}
 
@@ -103,8 +117,9 @@ public class UserController {
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User sender = userRepo.findByEmail(userDetails.getUsername()).get();
 		transfer.setSender(sender);
+		transfer.setAmount(transfer.getAmount() - 0.005 * transfer.getAmount());
 		transferRepo.save(transfer);
-		return "redirect:/index?success";
+		return "redirect:/transfer?success";
 	}
 
 	@GetMapping("/user/addconnection")
@@ -125,32 +140,8 @@ public class UserController {
 
 		connectionsRepo.save(c);
 
-		return "redirect:/index?success";
+		return "redirect:/transfer?success";
 
 	}
-
-	@GetMapping(value = "/listTransfers")
-	public String listTransfers(
-			Model model,
-			@RequestParam("page") Optional<Integer> page,
-			@RequestParam("size") Optional<Integer> size) {
-		int currentPage = page.orElse(1);
-		int pageSize = size.orElse(5);
-
-		Pageable pageable = PageRequest.of(currentPage, pageSize);
-
-		Page<Transfer> transferPage = transferRepo.findAll(pageable);
-
-
-		List < Transfer > listTransferts = transferPage.getContent();
-
-		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("totalPages", transferPage.getTotalPages());
-		model.addAttribute("totalItems", transferPage.getTotalElements());
-		model.addAttribute("transfers", listTransferts);
-
-		return "transfer.html";
-	}
-
 
 }

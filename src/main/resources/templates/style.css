@@ -9,3 +9,9 @@ body{
 #form{
     display: block;
 }
+
+div .col-sm-2 {
+    padding-left: 0px;
+    padding-right: 0px;
+    width: 122px;
+}

@@ -23,6 +23,6 @@ public class Transfer {
 	@ManyToOne
 	User receiver;
 
-	public Transfer(int i, String spring_in_action) {
-	}
+//	public Transfer(int i, String spring_in_action) {
+//	}
 }

@@ -35,11 +35,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 				.antMatchers("/admin/*").authenticated()
 				.antMatchers("/user/*").authenticated()
-				.antMatchers("/signup","/index").permitAll()
+				.antMatchers("/signup","/transfer").permitAll()
 				.anyRequest().authenticated()
 				.and()
 				.formLogin()
-				.defaultSuccessUrl("/index",true)
+				.defaultSuccessUrl("/transfer",true)
 				.and()
 				.logout()
 				.logoutSuccessUrl("/login");
