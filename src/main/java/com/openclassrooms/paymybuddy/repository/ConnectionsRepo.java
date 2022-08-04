@@ -11,5 +11,5 @@ import java.util.List;
 public interface ConnectionsRepo extends CrudRepository<Connections, Long> {
 
 	@Query("SELECT c from Connections c WHERE c.owner.id=:user_id")
-	public List<Connections> findUserConnections(Long user_id);
+	List<Connections> findUserConnections(Long user_id);
 }

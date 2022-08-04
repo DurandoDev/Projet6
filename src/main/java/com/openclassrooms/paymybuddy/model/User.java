@@ -26,12 +26,9 @@ public class User implements UserDetails {
 
 	private String email;
 
-	private Long account;
-
 	private String password;
 
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-
 	private Role role;
 
 	@Override

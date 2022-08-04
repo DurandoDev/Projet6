@@ -127,6 +127,11 @@ public class UserController {
 		return "/addconnection";
 	}
 
+	@GetMapping("/user/profile")
+	public String showProfile() {
+		return "/profile";
+	}
+
 	@PostMapping("/user/addconnection")
 	public String addConnection(@RequestParam String email, Model model){
 
