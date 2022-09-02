@@ -46,21 +46,19 @@ public class UserController {
 	ConnectionsRepo connectionsRepo;
 
 	@GetMapping("/signup")
-	public String showSignUpForm(User user) {
-		return "signup";
-	}
+	public String showSignUpForm(User user) {return "signup";}
 
 	@PostMapping("/signup")
-	public String addUser(User user, BindingResult result, Model model) {
+	public String addUser(@Valid User user, BindingResult result) {
 		if (result.hasErrors()) {
 			return "signup";
 		}
 
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		Role role = roleRepo.findByName("USER").get();
+		Role role = roleRepo.findByName("USER").orElse(new Role());
 		user.setRole(role);
 		userRepo.save(user);
-		return "redirect:/transfer?success";
+		return "redirect:/login";
 	}
 
 	@GetMapping("/transfer")
@@ -105,7 +103,7 @@ public class UserController {
 		User user = userRepo.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
 		userRepo.delete(user);
-		return "redirect:/index";
+		return "redirect:/transfer";
 	}
 
 	@PostMapping("/user/transfer")
@@ -128,7 +126,12 @@ public class UserController {
 	}
 
 	@GetMapping("/user/profile")
-	public String showProfile() {
+	public String showProfile(Model model) {
+
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		User owner = userRepo.findByEmail(userDetails.getUsername()).get();
+
 		return "/profile";
 	}
 

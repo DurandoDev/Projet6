@@ -38,6 +38,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/signup","/transfer").permitAll()
 				.anyRequest().authenticated()
 				.and()
+				.csrf().disable()
 				.formLogin()
 				.defaultSuccessUrl("/transfer",true)
 				.and()

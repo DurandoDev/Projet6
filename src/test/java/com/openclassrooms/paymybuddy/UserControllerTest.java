@@ -1,30 +1,23 @@
 package com.openclassrooms.paymybuddy;
 
-import com.openclassrooms.paymybuddy.configuration.SpringSecurityConfig;
+import com.openclassrooms.paymybuddy.model.Role;
+import com.openclassrooms.paymybuddy.model.User;
+import com.openclassrooms.paymybuddy.repository.UserRepo;
 import org.junit.Before;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.util.*;
+import java.util.Optional;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -33,7 +26,26 @@ public class UserControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
+	@Autowired
+	private UserRepo userRepo;
 
+	@BeforeEach
+	public void Init(){
+		User u = new User();
+		Role role =new Role();
+		u.setFirstName("test");
+		u.setLastName("testName");
+		u.setEmail("toto@gmail.com");
+		u.setPassword("testPassword");
+		u.setRole(role);
+
+		userRepo.save(u);
+	}
+
+	@AfterEach
+	public void Clean(){
+		userRepo.deleteAll();
+	}
 
 	//Test unitaires
 
@@ -53,15 +65,26 @@ public class UserControllerTest {
 	@Test
 	@WithMockUser(username = "toto@gmail.com", password = "abc123", roles = "USER")
 	public void testDeleteUser() throws Exception {
-		mockMvc.perform(get("/delete/{id}")
-						.param("10"))
-				.andExpect(status().isOk());
+
+		User user = new User();
+
+		user.setFirstName("testController");
+		user.setLastName("userName");
+
+		userRepo.save(user);
+
+		mockMvc.perform(get("/delete/"+user.getId()))
+				.andExpect(redirectedUrl("/transfer")).andExpect(status().isFound());
 	}
 
 	@Test
-	@WithMockUser(username = "toto@gmail.com", password = "abc123", roles = "USER")
 	public void testPostSignup() throws Exception {
-		mockMvc.perform(post("/signup"))
-				.andExpect(status().isOk());
+		mockMvc.perform(post("/signup")
+						.param("firstName","testFirstName")
+						.param("lastName","testLastName")
+						.param("email","testemail@email.com")
+						.param("password","testPassword"))
+				.andExpect(redirectedUrl("/login"))
+				.andExpect(status().isFound());
 	}
 }

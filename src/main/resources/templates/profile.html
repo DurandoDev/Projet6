@@ -35,15 +35,15 @@
         <section id="profileCard" class="container">
             <ul class="list-group">
                 <li class="list-group-item list-group-item-dark">Firstname</li>
-                <li class="list-group-item"><span th:text ="${#authentication.getPrincipal().getFirstName()}"></span></li>
+                <li class="list-group-item"><span th:text ="${currentUser.firstName}"></span></li>
             </ul>
             <ul class="list-group">
                 <li class="list-group-item  list-group-item-dark">Lastname</li>
-                <li class="list-group-item"><span th:text ="${#authentication.getPrincipal().getLastName()}"></span></li>
+                <li class="list-group-item"><span th:text ="${currentUser.lastName}"></span></li>
             </ul>
             <ul class="list-group">
                 <li class="list-group-item  list-group-item-dark">Email</li>
-                <li class="list-group-item" sec:authorize="isAuthenticated()"><span sec:authentication="name"></span></li>
+                <li class="list-group-item"><span th:text ="${currentUser.email}"></span></li>
             </ul>
         </section>
     </body>
