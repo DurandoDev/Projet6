@@ -64,6 +64,20 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(username = "toto@gmail.com", password = "abc123", roles = "USER")
+	public void testShowAddConnection() throws Exception {
+		mockMvc.perform(get("/user/addconnection"))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(username = "toto@gmail.com", password = "abc123", roles = "USER")
+	public void testShowProfile() throws Exception {
+		mockMvc.perform(get("/user/profile"))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(username = "toto@gmail.com", password = "abc123", roles = "USER")
 	public void testDeleteUser() throws Exception {
 
 		User user = new User();

@@ -131,6 +131,7 @@ public class UserController {
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		User owner = userRepo.findByEmail(userDetails.getUsername()).get();
+		model.addAttribute("currentUser",owner);
 
 		return "/profile";
 	}
