@@ -2,6 +2,7 @@ package com.openclassrooms.paymybuddy;
 
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
+import com.openclassrooms.paymybuddy.repository.ConnectionsRepo;
 import com.openclassrooms.paymybuddy.repository.UserRepo;
 import org.junit.Before;
 import org.junit.jupiter.api.AfterAll;
@@ -29,6 +30,8 @@ public class UserControllerTest {
 	@Autowired
 	private UserRepo userRepo;
 
+	@Autowired
+	private ConnectionsRepo connectionsRepo;
 	@BeforeEach
 	public void Init(){
 		User u = new User();
@@ -44,10 +47,9 @@ public class UserControllerTest {
 
 	@AfterEach
 	public void Clean(){
+		connectionsRepo.deleteAll();
 		userRepo.deleteAll();
 	}
-
-	//Test unitaires
 
 	@Test
 	public void testShowSignUpForm() throws Exception {
@@ -99,6 +101,23 @@ public class UserControllerTest {
 						.param("email","testemail@email.com")
 						.param("password","testPassword"))
 				.andExpect(redirectedUrl("/login"))
+				.andExpect(status().isFound());
+	}
+
+	@Test
+	@WithMockUser(username = "toto@gmail.com", password = "abc123", roles = "USER")
+	public void testAddConnection() throws Exception {
+
+		User user = new User();
+
+		user.setFirstName("testController");
+		user.setLastName("userName");
+		user.setEmail("testemail@email.com");
+
+		userRepo.save(user);
+		mockMvc.perform(post("/user/addconnection")
+						.param("email","testemail@email.com"))
+				.andExpect(redirectedUrl("/transfer?success"))
 				.andExpect(status().isFound());
 	}
 }
