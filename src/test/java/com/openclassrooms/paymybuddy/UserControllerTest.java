@@ -4,18 +4,14 @@ import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.ConnectionsRepo;
 import com.openclassrooms.paymybuddy.repository.UserRepo;
-import org.junit.Before;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;Fic
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,6 +28,7 @@ public class UserControllerTest {
 
 	@Autowired
 	private ConnectionsRepo connectionsRepo;
+
 	@BeforeEach
 	public void Init(){
 		User u = new User();

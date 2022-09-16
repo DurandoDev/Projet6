@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpringSecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Projet_6$UserControllerTest.exec</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.paymybuddy.configuration</a> &gt; <span class="el_source">SpringSecurityConfig.java</span></div><h1>SpringSecurityConfig.java</h1><pre class="source lang-java linenums">package com.openclassrooms.paymybuddy.configuration;
+
+import com.openclassrooms.paymybuddy.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+<span class="fc" id="L16">public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {</span>
+
+	@Autowired
+	private UserService userDetailsService;
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+<span class="fc" id="L23">		auth</span>
+<span class="fc" id="L24">				.userDetailsService(userDetailsService)</span>
+<span class="fc" id="L25">				.passwordEncoder(passwordEncoder());</span>
+<span class="fc" id="L26">	}</span>
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+<span class="fc" id="L30">		return new BCryptPasswordEncoder();</span>
+	}
+
+	@Override
+	public void configure(HttpSecurity http) throws Exception {
+<span class="fc" id="L35">		http.authorizeRequests()</span>
+<span class="fc" id="L36">				.antMatchers(&quot;/admin/*&quot;).authenticated()</span>
+<span class="fc" id="L37">				.antMatchers(&quot;/user/*&quot;).authenticated()</span>
+<span class="fc" id="L38">				.antMatchers(&quot;/signup&quot;,&quot;/transfer&quot;).permitAll()</span>
+<span class="fc" id="L39">				.anyRequest().authenticated()</span>
+<span class="fc" id="L40">				.and()</span>
+<span class="fc" id="L41">				.csrf().disable()</span>
+<span class="fc" id="L42">				.formLogin()</span>
+<span class="fc" id="L43">				.defaultSuccessUrl(&quot;/transfer&quot;,true)</span>
+<span class="fc" id="L44">				.and()</span>
+<span class="fc" id="L45">				.logout()</span>
+<span class="fc" id="L46">				.logoutSuccessUrl(&quot;/login&quot;);</span>
+<span class="fc" id="L47">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
