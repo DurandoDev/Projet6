@@ -67,7 +67,7 @@ public class UserController {
 	                           @RequestParam("size") Optional<Integer> size) {
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User connectedUser = userRepo.findByEmail(userDetails.getUsername()).get();
-		model.addAttribute("connections", connectionsRepo.findUserConnections(connectedUser.getId()));
+		model.addAttribute("connections", connectionsRepo.findByOwner_id(connectedUser.getId()));
 
 
 		int currentPage = page.orElse(1);

@@ -1,1 +1,0 @@
-Lien vers le projet github : https://github.com/DurandoDev/Projet6.git
