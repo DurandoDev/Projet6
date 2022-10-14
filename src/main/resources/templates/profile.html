@@ -45,6 +45,17 @@
                 <li class="list-group-item  list-group-item-dark">Email</li>
                 <li class="list-group-item"><span th:text ="${currentUser.email}"></span></li>
             </ul>
+            <ul class="list-group">
+                <li class="list-group-item  list-group-item-dark">Balance</li>
+                <li class="list-group-item"><span th:text ="${currentUser.balance.amount}"></span></li>
+            </ul>
         </section>
+        <form action="#" th:action="@{/balance}" method="post" class="container">
+            <div class="mb-3">
+                <label for="balance" class="form-label">Add amount :</label>
+                <input type="text" name="amount" class="form-control" id="balance" placeholder="0">
+            </div>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </form>
     </body>
 </html>

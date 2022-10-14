@@ -1,13 +1,7 @@
 package com.openclassrooms.paymybuddy.controller;
 
-import com.openclassrooms.paymybuddy.model.Connections;
-import com.openclassrooms.paymybuddy.model.Role;
-import com.openclassrooms.paymybuddy.model.Transfer;
-import com.openclassrooms.paymybuddy.model.User;
-import com.openclassrooms.paymybuddy.repository.ConnectionsRepo;
-import com.openclassrooms.paymybuddy.repository.RoleRepo;
-import com.openclassrooms.paymybuddy.repository.TransferRepo;
-import com.openclassrooms.paymybuddy.repository.UserRepo;
+import com.openclassrooms.paymybuddy.model.*;
+import com.openclassrooms.paymybuddy.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,11 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -32,6 +24,9 @@ public class UserController {
 
 	@Autowired
 	TransferRepo transferRepo;
+
+	@Autowired
+	BalanceRepo balanceRepo;
 
 	@Autowired
 	UserRepo userRepo;
@@ -55,8 +50,9 @@ public class UserController {
 		}
 
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		Role role = roleRepo.findByName("USER").orElse(new Role());
+		Role role = roleRepo.findByName("USER").orElse(new Role("USER"));
 		user.setRole(role);
+		user.setBalance(new Balance());
 		userRepo.save(user);
 		return "redirect:/login";
 	}
@@ -67,6 +63,8 @@ public class UserController {
 	                           @RequestParam("size") Optional<Integer> size) {
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User connectedUser = userRepo.findByEmail(userDetails.getUsername()).get();
+
+		model.addAttribute("currentUser",connectedUser);
 		model.addAttribute("connections", connectionsRepo.findByOwner_id(connectedUser.getId()));
 
 
@@ -153,4 +151,19 @@ public class UserController {
 
 	}
 
+	@PostMapping("/balance")
+	public String addBalance(@RequestBody MultiValueMap<String,String> body, BindingResult result){
+		if (result.hasErrors()) {
+			return "/user/profile";
+		}
+
+		int amount = Integer.valueOf(body.get("amount").get(0));
+
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User owner = userRepo.findByEmail(userDetails.getUsername()).get();
+		Balance balance = owner.getBalance();
+		balance.setAmount(balance.getAmount() + amount);
+		balanceRepo.save(balance);
+		return "redirect:/user/profile?success";
+	}
 }

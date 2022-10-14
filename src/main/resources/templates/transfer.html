@@ -31,6 +31,23 @@
                 </ol>
             </nav>
         </section>
+        <section id="balance">
+            <div class="container row-cols-sm-6" style="margin-bottom: 1%">
+                <div class=" row card">
+                    <div class="card-header">
+                        Balance
+                    </div>
+                    <div class="row card-body">
+                        <div class="col-sm-6">
+                        <p><span th:text ="${currentUser.balance.amount}"></span></p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>$</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         <section id="sendMoney" class="container">
             <div class="row">
                 <div class="col-sm-6">
