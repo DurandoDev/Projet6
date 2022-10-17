@@ -1,5 +1,6 @@
 package com.openclassrooms.paymybuddy;
 
+import com.openclassrooms.paymybuddy.model.Balance;
 import com.openclassrooms.paymybuddy.model.Role;
 import com.openclassrooms.paymybuddy.model.User;
 import com.openclassrooms.paymybuddy.repository.ConnectionsRepo;
@@ -33,10 +34,12 @@ public class UserControllerTest {
 	public void Init(){
 		User u = new User();
 		Role role =new Role();
+		Balance balance =new Balance();
 		u.setFirstName("test");
 		u.setLastName("testName");
 		u.setEmail("toto@gmail.com");
 		u.setPassword("testPassword");
+		u.setBalance(balance);
 		u.setRole(role);
 
 		userRepo.save(u);
@@ -83,6 +86,7 @@ public class UserControllerTest {
 
 		user.setFirstName("testController");
 		user.setLastName("userName");
+		user.setPassword("testPassword");
 
 		userRepo.save(user);
 
@@ -110,6 +114,7 @@ public class UserControllerTest {
 		user.setFirstName("testController");
 		user.setLastName("userName");
 		user.setEmail("testemail@email.com");
+		user.setPassword("testPassword");
 
 		userRepo.save(user);
 		mockMvc.perform(post("/user/addconnection")

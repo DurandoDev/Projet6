@@ -66,6 +66,7 @@ public class UserController {
 
 		model.addAttribute("currentUser",connectedUser);
 		model.addAttribute("connections", connectionsRepo.findByOwner_id(connectedUser.getId()));
+		model.addAttribute("transfer", transfer);
 
 
 		int currentPage = page.orElse(1);
@@ -105,16 +106,29 @@ public class UserController {
 	}
 
 	@PostMapping("/user/transfer")
-	public String doTransfer(Transfer transfer, BindingResult result, Model model) {
+	public String doTransfer(@RequestParam User receiver, Transfer transfer, BindingResult result, Model model) {
 		if (result.hasErrors()) {
 			return "index";
 		}
 
+
+
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User sender = userRepo.findByEmail(userDetails.getUsername()).get();
 		transfer.setSender(sender);
+		transfer.setReceiver(receiver);
+
+
+		Balance balanceSender = sender.getBalance();
+		Balance balanceReceiver = receiver.getBalance();
+		balanceSender.setAmount(balanceSender.getAmount() - transfer.getAmount());
+		balanceReceiver.setAmount(balanceReceiver.getAmount() + (transfer.getAmount() - 0.005 * transfer.getAmount()));
 		transfer.setAmount(transfer.getAmount() - 0.005 * transfer.getAmount());
+
 		transferRepo.save(transfer);
+		balanceRepo.save(balanceSender);
+		balanceRepo.save(balanceReceiver);
+
 		return "redirect:/transfer?success";
 	}
 
