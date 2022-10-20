@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Projet_6$UserControllerTest.exec</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.paymybuddy.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.openclassrooms.paymybuddy.controller;
 
-import com.openclassrooms.paymybuddy.model.Connections;
-import com.openclassrooms.paymybuddy.model.Role;
-import com.openclassrooms.paymybuddy.model.Transfer;
-import com.openclassrooms.paymybuddy.model.User;
-import com.openclassrooms.paymybuddy.repository.ConnectionsRepo;
-import com.openclassrooms.paymybuddy.repository.RoleRepo;
-import com.openclassrooms.paymybuddy.repository.TransferRepo;
-import com.openclassrooms.paymybuddy.repository.UserRepo;
+import com.openclassrooms.paymybuddy.model.*;
+import com.openclassrooms.paymybuddy.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,21 +11,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
-<span class="fc" id="L31">public class UserController {</span>
+<span class="fc" id="L23">public class UserController {</span>
 
 	@Autowired
 	TransferRepo transferRepo;
+
+	@Autowired
+	BalanceRepo balanceRepo;
 
 	@Autowired
 	UserRepo userRepo;
@@ -46,112 +41,142 @@ import java.util.Optional;
 	ConnectionsRepo connectionsRepo;
 
 	@GetMapping(&quot;/signup&quot;)
-<span class="fc" id="L49">	public String showSignUpForm(User user) {return &quot;signup&quot;;}</span>
+<span class="fc" id="L44">	public String showSignUpForm(User user) {return &quot;signup&quot;;}</span>
 
 	@PostMapping(&quot;/signup&quot;)
 	public String addUser(@Valid User user, BindingResult result) {
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">		if (result.hasErrors()) {</span>
-<span class="nc" id="L54">			return &quot;signup&quot;;</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">		if (result.hasErrors()) {</span>
+<span class="nc" id="L49">			return &quot;signup&quot;;</span>
 		}
 
-<span class="fc" id="L57">		user.setPassword(passwordEncoder.encode(user.getPassword()));</span>
-<span class="fc" id="L58">		Role role = roleRepo.findByName(&quot;USER&quot;).orElse(new Role());</span>
-<span class="fc" id="L59">		user.setRole(role);</span>
-<span class="fc" id="L60">		userRepo.save(user);</span>
-<span class="fc" id="L61">		return &quot;redirect:/login&quot;;</span>
+<span class="fc" id="L52">		user.setPassword(passwordEncoder.encode(user.getPassword()));</span>
+<span class="fc" id="L53">		Role role = roleRepo.findByName(&quot;USER&quot;).orElse(new Role(&quot;USER&quot;));</span>
+<span class="fc" id="L54">		user.setRole(role);</span>
+<span class="fc" id="L55">		user.setBalance(new Balance());</span>
+<span class="fc" id="L56">		userRepo.save(user);</span>
+<span class="fc" id="L57">		return &quot;redirect:/login&quot;;</span>
 	}
 
 	@GetMapping(&quot;/transfer&quot;)
 	public String showUserList(Transfer transfer, Model model,
 	                           @RequestParam(&quot;page&quot;) Optional&lt;Integer&gt; page,
 	                           @RequestParam(&quot;size&quot;) Optional&lt;Integer&gt; size) {
-<span class="fc" id="L68">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
-<span class="fc" id="L69">		User connectedUser = userRepo.findByEmail(userDetails.getUsername()).get();</span>
-<span class="fc" id="L70">		model.addAttribute(&quot;connections&quot;, connectionsRepo.findUserConnections(connectedUser.getId()));</span>
+<span class="fc" id="L64">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
+<span class="fc" id="L65">		User connectedUser = userRepo.findByEmail(userDetails.getUsername()).get();</span>
+
+<span class="fc" id="L67">		model.addAttribute(&quot;currentUser&quot;,connectedUser);</span>
+<span class="fc" id="L68">		model.addAttribute(&quot;connections&quot;, connectionsRepo.findByOwner_id(connectedUser.getId()));</span>
+<span class="fc" id="L69">		model.addAttribute(&quot;transfer&quot;, transfer);</span>
 
 
-<span class="fc" id="L73">		int currentPage = page.orElse(1);</span>
-<span class="fc" id="L74">		int pageSize = size.orElse(5);</span>
+<span class="fc" id="L72">		int currentPage = page.orElse(1);</span>
+<span class="fc" id="L73">		int pageSize = size.orElse(5);</span>
 
-<span class="fc" id="L76">		Pageable pageable = PageRequest.of(currentPage-1, pageSize);</span>
+<span class="fc" id="L75">		Pageable pageable = PageRequest.of(currentPage-1, pageSize);</span>
 
-<span class="fc" id="L78">		Page&lt;Transfer&gt; transferPage = transferRepo.findBySender(connectedUser,pageable);</span>
+<span class="fc" id="L77">		Page&lt;Transfer&gt; transferPage = transferRepo.findBySender(connectedUser,pageable);</span>
 
-<span class="fc" id="L80">		List &lt; Transfer &gt; listTransferts = transferPage.getContent();</span>
+<span class="fc" id="L79">		List &lt; Transfer &gt; listTransferts = transferPage.getContent();</span>
 
-<span class="fc" id="L82">		model.addAttribute(&quot;currentPage&quot;, currentPage);</span>
-<span class="fc" id="L83">		model.addAttribute(&quot;totalPages&quot;, transferPage.getTotalPages());</span>
-<span class="fc" id="L84">		model.addAttribute(&quot;totalItems&quot;, transferPage.getTotalElements());</span>
-<span class="fc" id="L85">		model.addAttribute(&quot;transfers&quot;, listTransferts);</span>
-<span class="fc" id="L86">		return &quot;transfer&quot;;</span>
+<span class="fc" id="L81">		model.addAttribute(&quot;currentPage&quot;, currentPage);</span>
+<span class="fc" id="L82">		model.addAttribute(&quot;totalPages&quot;, transferPage.getTotalPages());</span>
+<span class="fc" id="L83">		model.addAttribute(&quot;totalItems&quot;, transferPage.getTotalElements());</span>
+<span class="fc" id="L84">		model.addAttribute(&quot;transfers&quot;, listTransferts);</span>
+<span class="fc" id="L85">		return &quot;transfer&quot;;</span>
 	}
 
 	@PostMapping(&quot;/update/{id}&quot;)
 	public String updateUser(@PathVariable(&quot;id&quot;) long id, @Valid User user,
 	                         BindingResult result, Model model) {
-<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (result.hasErrors()) {</span>
-<span class="nc" id="L93">			user.setId(id);</span>
-<span class="nc" id="L94">			return &quot;update-user&quot;;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		if (result.hasErrors()) {</span>
+<span class="nc" id="L92">			user.setId(id);</span>
+<span class="nc" id="L93">			return &quot;update-user&quot;;</span>
 		}
 
-<span class="nc" id="L97">		userRepo.save(user);</span>
-<span class="nc" id="L98">		return &quot;redirect:/index&quot;;</span>
+<span class="nc" id="L96">		userRepo.save(user);</span>
+<span class="nc" id="L97">		return &quot;redirect:/index&quot;;</span>
 	}
 
 	@GetMapping(&quot;/delete/{id}&quot;)
 	public String deleteUser(@PathVariable(&quot;id&quot;) long id, Model model) {
-<span class="fc" id="L103">		User user = userRepo.findById(id)</span>
-<span class="pc" id="L104">				.orElseThrow(() -&gt; new IllegalArgumentException(&quot;Invalid user Id:&quot; + id));</span>
-<span class="fc" id="L105">		userRepo.delete(user);</span>
-<span class="fc" id="L106">		return &quot;redirect:/transfer&quot;;</span>
+<span class="fc" id="L102">		User user = userRepo.findById(id)</span>
+<span class="pc" id="L103">				.orElseThrow(() -&gt; new IllegalArgumentException(&quot;Invalid user Id:&quot; + id));</span>
+<span class="fc" id="L104">		userRepo.delete(user);</span>
+<span class="fc" id="L105">		return &quot;redirect:/transfer&quot;;</span>
 	}
 
 	@PostMapping(&quot;/user/transfer&quot;)
-	public String doTransfer(Transfer transfer, BindingResult result, Model model) {
-<span class="nc bnc" id="L111" title="All 2 branches missed.">		if (result.hasErrors()) {</span>
-<span class="nc" id="L112">			return &quot;index&quot;;</span>
+	public String doTransfer(@RequestParam User receiver, Transfer transfer, BindingResult result, Model model) {
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if (result.hasErrors()) {</span>
+<span class="nc" id="L111">			return &quot;index&quot;;</span>
 		}
 
-<span class="nc" id="L115">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
-<span class="nc" id="L116">		User sender = userRepo.findByEmail(userDetails.getUsername()).get();</span>
-<span class="nc" id="L117">		transfer.setSender(sender);</span>
-<span class="nc" id="L118">		transfer.setAmount(transfer.getAmount() - 0.005 * transfer.getAmount());</span>
-<span class="nc" id="L119">		transferRepo.save(transfer);</span>
-<span class="nc" id="L120">		return &quot;redirect:/transfer?success&quot;;</span>
+<span class="nc" id="L114">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
+<span class="nc" id="L115">		User sender = userRepo.findByEmail(userDetails.getUsername()).get();</span>
+<span class="nc" id="L116">		transfer.setSender(sender);</span>
+<span class="nc" id="L117">		transfer.setReceiver(receiver);</span>
+
+
+<span class="nc" id="L120">		Balance balanceSender = sender.getBalance();</span>
+<span class="nc" id="L121">		Balance balanceReceiver = receiver.getBalance();</span>
+<span class="nc" id="L122">		balanceSender.setAmount(balanceSender.getAmount() - transfer.getAmount());</span>
+<span class="nc" id="L123">		balanceReceiver.setAmount(balanceReceiver.getAmount() + (transfer.getAmount() - 0.005 * transfer.getAmount()));</span>
+<span class="nc" id="L124">		transfer.setAmount(transfer.getAmount() - 0.005 * transfer.getAmount());</span>
+
+<span class="nc" id="L126">		transferRepo.save(transfer);</span>
+<span class="nc" id="L127">		balanceRepo.save(balanceSender);</span>
+<span class="nc" id="L128">		balanceRepo.save(balanceReceiver);</span>
+
+<span class="nc" id="L130">		return &quot;redirect:/transfer?success&quot;;</span>
 	}
 
 	@GetMapping(&quot;/user/addconnection&quot;)
 	public String showAddConnection() {
-<span class="fc" id="L125">		return &quot;/addconnection&quot;;</span>
+<span class="fc" id="L135">		return &quot;/addconnection&quot;;</span>
 	}
 
 	@GetMapping(&quot;/user/profile&quot;)
 	public String showProfile(Model model) {
 
-<span class="fc" id="L131">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
+<span class="fc" id="L141">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
 
-<span class="fc" id="L133">		User owner = userRepo.findByEmail(userDetails.getUsername()).get();</span>
-<span class="fc" id="L134">		model.addAttribute(&quot;currentUser&quot;,owner);</span>
+<span class="fc" id="L143">		User owner = userRepo.findByEmail(userDetails.getUsername()).get();</span>
+<span class="fc" id="L144">		model.addAttribute(&quot;currentUser&quot;,owner);</span>
 
-<span class="fc" id="L136">		return &quot;/profile&quot;;</span>
+<span class="fc" id="L146">		return &quot;/profile&quot;;</span>
 	}
 
 	@PostMapping(&quot;/user/addconnection&quot;)
 	public String addConnection(@RequestParam String email, Model model){
 
-<span class="fc" id="L142">		User user = userRepo.findByEmail(email).get();</span>
+<span class="fc" id="L152">		User user = userRepo.findByEmail(email).get();</span>
 
-<span class="fc" id="L144">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
+<span class="fc" id="L154">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
 
-<span class="fc" id="L146">		User owner = userRepo.findByEmail(userDetails.getUsername()).get();</span>
+<span class="fc" id="L156">		User owner = userRepo.findByEmail(userDetails.getUsername()).get();</span>
 
-<span class="fc" id="L148">		Connections c = new Connections(user, owner);</span>
+<span class="fc" id="L158">		Connections c = new Connections(user, owner);</span>
 
-<span class="fc" id="L150">		connectionsRepo.save(c);</span>
+<span class="fc" id="L160">		connectionsRepo.save(c);</span>
 
-<span class="fc" id="L152">		return &quot;redirect:/transfer?success&quot;;</span>
+<span class="fc" id="L162">		return &quot;redirect:/transfer?success&quot;;</span>
 
 	}
 
+	@PostMapping(&quot;/balance&quot;)
+	public String addBalance(@RequestBody MultiValueMap&lt;String,String&gt; body, BindingResult result){
+<span class="nc bnc" id="L168" title="All 2 branches missed.">		if (result.hasErrors()) {</span>
+<span class="nc" id="L169">			return &quot;/user/profile&quot;;</span>
+		}
+
+<span class="nc" id="L172">		int amount = Integer.valueOf(body.get(&quot;amount&quot;).get(0));</span>
+
+<span class="nc" id="L174">		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span>
+<span class="nc" id="L175">		User owner = userRepo.findByEmail(userDetails.getUsername()).get();</span>
+<span class="nc" id="L176">		Balance balance = owner.getBalance();</span>
+<span class="nc" id="L177">		balance.setAmount(balance.getAmount() + amount);</span>
+<span class="nc" id="L178">		balanceRepo.save(balance);</span>
+<span class="nc" id="L179">		return &quot;redirect:/user/profile?success&quot;;</span>
+	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

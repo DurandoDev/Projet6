@@ -13,6 +13,6 @@ public class Balance {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private Double amount;
+	private Double amount = 0d;
 
 }

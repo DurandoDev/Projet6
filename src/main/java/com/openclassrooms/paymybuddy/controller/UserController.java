@@ -111,8 +111,6 @@ public class UserController {
 			return "index";
 		}
 
-
-
 		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User sender = userRepo.findByEmail(userDetails.getUsername()).get();
 		transfer.setSender(sender);
